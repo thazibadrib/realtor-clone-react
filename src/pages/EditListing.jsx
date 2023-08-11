@@ -11,7 +11,7 @@ import { getAuth } from "firebase/auth";
 import { v4 as uuidv4 } from "uuid";
 import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, } from "react-router-dom";
 
 export default function CreateListing() {
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ export default function CreateListing() {
     images,
   } = formData;
 
-  const params = useParams()
+  const params = useParams();
     
   useEffect(()=>{
     if(listing && listing.userRef !== auth.currentUser.uid){
