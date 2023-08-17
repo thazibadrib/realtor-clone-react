@@ -1,38 +1,41 @@
 import { doc, getDoc } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { db } from "../firebase";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Autoplay, Navigation, Pagination } from "swiper/modules";
 import "swiper/css/bundle";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/scrollbar";
-import { FaShare, FaMapMarkerAlt, FaBed, FaBath, FaChair, FaParking } from "react-icons/fa";
+import {
+  FaShare,
+  FaMapMarkerAlt,
+  FaBed,
+  FaBath,
+  FaParking,
+  FaChair,
+} from "react-icons/fa";
+import { getAuth } from "firebase/auth";
+import Contact from "../components/Contact";
 
 export default function Listing() {
+  const auth = getAuth();
+  const params = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
-  const params = useParams();
-
-  //Swiper.use(EffectFade, Autoplay, Pagination, Navigation);
-
+  const [contactLandlord, setContactLandlord] = useState(false);
   useEffect(() => {
     async function fetchListing() {
       const docRef = doc(db, "listings", params.listingId);
       const docSnap = await getDoc(docRef);
-
       if (docSnap.exists()) {
         setListing(docSnap.data());
         setLoading(false);
       }
     }
-
     fetchListing();
   }, [params.listingId]);
-
   if (loading) {
     return <Spinner />;
   }
@@ -46,7 +49,7 @@ export default function Listing() {
         effect="fade"
         autoplay={{ delay: 3000 }}
       >
-        {listing.imgUrls.map((url, index) => (
+         {listing.imgUrls.map((url, index) => (
           <SwiperSlide key={index}>
             <div
               className="relative w-full overflow-hidden h-[300px]"
@@ -59,7 +62,7 @@ export default function Listing() {
         ))}
       </Swiper>
       <div
-        className="fixed top-[13%] right-[3%] z-10 bg-white cursor-pointer border-2 border-gray-400 rounded-full w-12 h-12 flex justify-center items-center "
+        className="fixed top-[13%] right-[3%] z-10 bg-white cursor-pointer border-2 border-gray-400 rounded-full w-12 h-12 flex justify-center items-center"
         onClick={() => {
           navigator.clipboard.writeText(window.location.href);
           setShareLinkCopied(true);
@@ -68,15 +71,16 @@ export default function Listing() {
           }, 2000);
         }}
       >
-        <FaShare className="text-xl text-slate-500 " />
+        <FaShare className="text-lg text-slate-500" />
       </div>
       {shareLinkCopied && (
-        <p className="fixed top-[23%] right-[5%] font-semibold border-2 border-gray-400 rounded-md bg-white z-10 p-2 ">
+        <p className="fixed top-[23%] right-[5%] font-semibold border-2 border-gray-400 rounded-md bg-white z-10 p-2">
           Link Copied
         </p>
       )}
-       <div className="m-4 flex flex-col md:flex-row max-w-6xl lg:mx-auto p-4 rounded-lg shadow-lg bg-white lg:space-x-5">
-        <div className=" w-full h-[200px] lg-[400px]">
+
+      <div className="m-4 flex flex-col md:flex-row max-w-6xl lg:mx-auto p-4 rounded-lg shadow-lg bg-white lg:space-x-5">
+      <div className=" w-full ">
           <p className="text-2xl font-bold mb-3 text-blue-900">
             {listing.name} - ${" "}
             {listing.offer
@@ -106,7 +110,7 @@ export default function Listing() {
             <span className="font-semibold">Description - </span>
             {listing.description}
           </p>
-          <ul className="flex items-center space-x-2 sm:space-x-10 text-sm font-semibold">
+          <ul className="flex items-center space-x-2 sm:space-x-10 text-sm font-semibold mb-6">
             <li className="flex items-center whitespace-nowrap">
               <FaBed className="text-lg mr-1" />
               {+listing.bedrooms > 1 ? `${listing.bedrooms} Beds` : "1 Bed"}
@@ -124,6 +128,19 @@ export default function Listing() {
               {listing.furnished ? "Furnished" : "Not furnished"}
             </li>
           </ul>
+          {listing.userRef !== auth.currentUser?.uid && !contactLandlord && (
+            <div className="mt-6">
+              <button
+                onClick={() => setContactLandlord(true)}
+                className="px-7 py-3 bg-blue-600 text-white font-medium text-sm uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg w-full text-center transition duration-150 ease-in-out "
+              >
+                Contact Landlord
+              </button>
+            </div>
+          )}
+          {contactLandlord && (
+            <Contact userRef={listing.userRef} listing={listing} />
+          )}
         </div>
         <div className="bg-blue-300 w-full h-[200px] lg-[400px] z-10 overflow-x-hidden"></div>
       </div>
