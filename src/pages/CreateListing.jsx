@@ -424,8 +424,9 @@ export default function CreateListing() {
         )}
         <div className="mb-6">
           <p className="text-lg font-semibold">Images</p>
-          <p className="text-gray-600">
-            The first image will be the cover (max 6)
+          <p className="text-gray-600 font-bold">
+            The first image will be the cover <br />
+            <p className="font-semibold text-slate-600">(max 6 images and each image must be under 2mbs)</p> 
           </p>
           <input
             type="file"
