@@ -18,7 +18,7 @@ export default function Category() {
   const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastFetchListing, setLastFetchListing] = useState(null);
-  const params = useParams()
+  const params = useParams();
 
   useEffect(() => {
     async function fetchListings() {
@@ -49,7 +49,7 @@ export default function Category() {
     fetchListings();
   }, [params.categoryName]);
 
-  async function onFetchMoreListings(){
+  async function onFetchMoreListings() {
     try {
       const listingRef = collection(db, "listings");
       const q = query(
@@ -68,7 +68,7 @@ export default function Category() {
       querySnap.forEach((doc) => {
         return listings.push({ id: doc.id, data: doc.data() });
       });
-      setListings((prevState)=>[...prevState, ...listings]);
+      setListings((prevState) => [...prevState, ...listings]);
       setLoading(false);
     } catch (error) {
       toast.error("Could not fetch listing");
@@ -96,16 +96,23 @@ export default function Category() {
           </main>
           {lastFetchListing && (
             <div className="flex justify-center item-center">
-              <button className="bg-white px-3 py-1.5 text-gray-700 border border-gray-300 mb-6 mt-6 hover:border-slate-600 rounded transition duration-150 ease-in-out" onClick={onFetchMoreListings}>
+              <button
+                className="bg-white px-3 py-1.5 text-gray-700 border border-gray-300 mb-6 mt-6 hover:border-slate-600 rounded transition duration-150 ease-in-out"
+                onClick={onFetchMoreListings}
+              >
                 Load more
               </button>
             </div>
           )}
         </>
       ) : (
-        <p>There are no current offers</p>
+        <p>
+          There are no current{" "}
+          {params.categoryName === "rent"
+            ? "places for rent"
+            : "places for sale"}
+        </p>
       )}
     </div>
   );
 }
-
